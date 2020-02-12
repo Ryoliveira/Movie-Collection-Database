@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <title>Movie Search</title>
+</head>
+<body style="background-color: purple;">
+
+
+<div class="container border border-dark mt-2">
+    <h3 class="text-center"><b><u>Movie Collection</u></b></h3>
+    <hr>
+    <form th:action="@{/movies/search}">
+        <label class="text-light">Search new movie:</label>
+        <input type="text" th:name="title" placeholder="Movie Title" autocomplete="off" required>
+        <button type="submit" class="btn btn-primary">Submit</button><br>
+        <i class="text-danger" th:text="${notFound}"></i>
+    </form>
+    <hr>
+    <table class="table table-striped table-dark table-sm">
+        <thead class="text-center">
+            <th>Title</th>
+            <th>Rating</th>
+            <th>Year</th>
+            <tr th:each="movie : ${movies}">
+                <td th:text="${movie.title}"></td>
+                <td th:text="${movie.rated}"></td>
+                <td th:text="${movie.year}"></td>
+                <td>
+                    <a class="btn btn-info" target="_blank" th:href="@{${movie.getImdbLink()}}">View Imdb</a><br>
+                </td>
+                <td>
+                    <a th:href="@{/display-saved(id=${movie.id})}" class="btn btn-primary">View Movie</a>
+                </td>
+                <td>
+                    <a th:href="@{/delete(id=${movie.id})}" class="btn btn-danger"
+                       onclick="if(!(confirm('Are you sure you want to remove movie from collection?'))) return false;">Remove Movie</a>
+                </td>
+            </tr>
+        </thead>
+
+    </table>
+
+
+</div>
+
+<footer class="fixed-bottom text-right">Powered by: <a target="_blank" th:href="@{http://www.omdbapi.com/}">OMDB</a></footer>
+</body>
+</html>

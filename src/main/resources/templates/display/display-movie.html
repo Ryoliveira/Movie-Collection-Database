@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <title>Movie Display</title>
+</head>
+<body class="bg-info">
+
+<div class="container bg-secondary mt-3">
+    <hr>
+    <h3 class="text-center"><u>Movie Details</u></h3>
+    <hr>
+    <div class="row">
+        <div class="col-4">
+            <img class="border border-dark" th:src="@{${movie.poster}}">
+        </div>
+
+        <div class="col align-self-center mr-3 border border-dark">
+            <b><u>Title</u>:</b> <span th:text="${movie.title}"></span> <br>
+            <b><u>Released</u>:</b> <span th:text="${movie.released}"></span> <br>
+            <b><u>Rating</u>:</b> <span th:text="${movie.rated}"></span> <br>
+            <b><u>Runtime</u>:</b> <span th:text="${movie.runtime}"></span> <br>
+            <b><u>Plot summary</u>:</b> <span th:text="${movie.plot}"></span> <br>
+        </div>
+    </div>
+    <div class="row mt-2 mb-2">
+        <div class="col-2">
+            <form action="#" th:action="@{/movies}" method="post" th:object="${movie}">
+                <input type="hidden" th:field="*{title}">
+                <input type="hidden" th:field="*{rated}">
+                <input type="hidden" th:field="*{year}">
+                <input type="hidden" th:field="*{released}">
+                <input type="hidden" th:field="*{runtime}">
+                <input type="hidden" th:field="*{genre}">
+                <input type="hidden" th:field="*{plot}">
+                <input type="hidden" th:field="*{poster}">
+                <input type="hidden" th:field="*{imdbId}">
+                <button class="btn btn-primary" type="submit">Add to collection</button>
+            </form>
+        </div>
+        <div class="col-2">
+            <a class="btn btn-info" target="_blank" th:href="@{${movie.getImdbLink()}}">Imdb</a><br>
+        </div>
+    </div>
+    <div class="row">
+        <div class="ml-3">
+            <i class="text-danger" th:text="${failure}"></i>
+        </div>
+    </div>
+    <hr>
+    <div class="row col-2">
+        <a class="btn btn-info mb-3" th:href="@{/movies}">Back to collection</a>
+    </div>
+</div>
+
+<footer class="fixed-bottom text-right">Powered by: <a target="_blank" th:href="@{http://www.omdbapi.com/}">OMDB</a></footer>
+</body>
+</html>
