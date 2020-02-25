@@ -4,9 +4,6 @@ package com.ombd.OMDBDemo.entity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.data.annotation.Id;
 
-import java.util.List;
-
-
 public class Movie {
 
       @Id
@@ -39,6 +36,10 @@ public class Movie {
       @JsonProperty("imdbID")
       private String imdbId;
 
+      private boolean isFavorite;
+
+      private boolean isWatchList;
+
       public Movie() {
       }
 
@@ -52,6 +53,8 @@ public class Movie {
             this.plot = plot;
             this.poster = poster;
             this.imdbId = imdbId;
+            this.isFavorite = false;
+            this.isWatchList = false;
       }
 
       public String getId() {
@@ -132,6 +135,22 @@ public class Movie {
 
       public void setImdbId(String imdbId) {
             this.imdbId = imdbId;
+      }
+
+      public boolean isFavorite() {
+            return isFavorite;
+      }
+
+      public void setFavorite(boolean favorite) {
+            isFavorite = favorite;
+      }
+
+      public boolean isWatchList() {
+            return isWatchList;
+      }
+
+      public void setWatchList(boolean watchList) {
+            isWatchList = watchList;
       }
 
       public String getImdbLink(){

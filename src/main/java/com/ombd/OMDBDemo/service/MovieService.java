@@ -8,13 +8,23 @@ public interface MovieService {
 
     public List<Movie> findAll();
 
+    public List<Movie> findFavorites();
+
+    public List<Movie> findWatchList();
+
     public Movie findByTitle(String title);
 
-    public Movie findById(String id);
+    public Movie findByImdbId(String imdbId);
 
-    public void save(Movie theMovie);
+    public Movie search(String searchString, String searchType);
 
-    public void delete(Movie theMovie);
+    public Movie searchNewImdbId(String imdbId);
+
+    public Movie searchNewMovieTitle(String movieTitle);
+
+    public boolean save(Movie theMovie, String flag);
+
+    public void remove(String id, String flag);
 
 
 }

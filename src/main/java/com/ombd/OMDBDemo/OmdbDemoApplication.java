@@ -1,8 +1,6 @@
 package com.ombd.OMDBDemo;
 
 
-import com.ombd.OMDBDemo.service.MovieService;
-import com.ombd.OMDBDemo.service.MovieServiceImpl;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.client.RestTemplateBuilder;
