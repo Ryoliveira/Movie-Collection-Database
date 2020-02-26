@@ -85,11 +85,14 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public Movie searchNewImdbId(String imdbId) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
-                                                            .queryParam("i", imdbId)
-                                                            .queryParam("apikey", key);
+        String searchUrl = UriComponentsBuilder.fromHttpUrl(url)
+                                               .queryParam("i", imdbId)
+                                               .queryParam("apikey", key)
+                                               .toUriString();
 
-        ResponseEntity<Movie> response = restTemplate.getForEntity(builder.toUriString(), Movie.class);
+
+        ResponseEntity<Movie> response = restTemplate.getForEntity(searchUrl, Movie.class);
+
 
         Movie theMovie = response.getBody();
 
@@ -110,13 +113,13 @@ public class MovieServiceImpl implements MovieService {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
+        String searchUrl = UriComponentsBuilder.fromHttpUrl(url)
                                         .queryParam("t", movieTitle)
-                                        .queryParam("apikey", key);
+                                        .queryParam("apikey", key)
+                                        .toUriString();
 
-        LOGGER.info(builder.toUriString());
 
-        ResponseEntity<Movie> response = restTemplate.getForEntity(builder.toUriString(), Movie.class);
+        ResponseEntity<Movie> response = restTemplate.getForEntity(searchUrl, Movie.class);
 
         Movie theMovie = response.getBody();
 
