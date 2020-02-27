@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +18,11 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class MovieServiceTest {
@@ -35,263 +36,257 @@ public class MovieServiceTest {
     @Mock
     RestTemplate restTemplate;
 
-    @Test
-    public void findAll(){
-        List<Movie> movies = Arrays.asList(new Movie(), new Movie(), new Movie());
+    @Spy
+    Movie movieSpy;
 
-        Mockito.when(movieRepository.findAll()).thenReturn(movies);
+    @Test
+    public void findAll() {
+        List<Movie> collection = Arrays.asList(new Movie(), new Movie(), new Movie());
+
+        when(movieRepository.findAll()).thenReturn(collection);
 
         assertEquals(3, movieService.findAll().size());
-        Mockito.verify(movieRepository, Mockito.atLeastOnce()).findAll();
+        verify(movieRepository, atLeastOnce()).findAll();
     }
 
     @Test
-    public void findFavorites(){
-        List<Movie> movies = Arrays.asList(new Movie(), new Movie(), new Movie(), new Movie());
+    public void findFavorites() {
+        List<Movie> favorites = Arrays.asList(new Movie(), new Movie(), new Movie(), new Movie());
 
-        movies.get(3).setFavorite(true);
+        when(movieRepository.findByIsFavorite(true)).thenReturn(favorites);
 
-        List<Movie> favorites = movies.stream().filter(Movie::isFavorite).collect(Collectors.toList());
-
-        Mockito.when(movieRepository.findByIsFavorite(true)).thenReturn(favorites);
-
-        assertEquals(1, movieService.findFavorites().size());
-        Mockito.verify(movieRepository, Mockito.atLeastOnce()).findByIsFavorite(true);
+        assertEquals(4, movieService.findFavorites().size());
+        verify(movieRepository, atMostOnce()).findByIsFavorite(true);
     }
 
     @Test
-    public void findWatchList(){
-        List<Movie> movies = Arrays.asList(new Movie(), new Movie(), new Movie(), new Movie(), new Movie());
-        movies.get(1).setWatchList(true);
-        movies.get(4).setWatchList(true);
+    public void findWatchList() {
+        List<Movie> watchList = Arrays.asList(new Movie(), new Movie(), new Movie(), new Movie(), new Movie());
 
-        List<Movie> watchList = movies.stream().filter(Movie::isWatchList).collect(Collectors.toList());
+        when(movieRepository.findByIsWatchList(true)).thenReturn(watchList);
 
-        Mockito.when(movieRepository.findByIsWatchList(true)).thenReturn(watchList);
-
-        assertEquals(2, movieService.findWatchList().size());
-        Mockito.verify(movieRepository, Mockito.atLeastOnce()).findByIsWatchList(true);
-
+        assertEquals(5, movieService.findWatchList().size());
+        verify(movieRepository, atLeastOnce()).findByIsWatchList(true);
     }
 
 
-
     @Test
-    public void findByTitle_InDatabase(){
+    public void findByTitle_InDatabase() {
+        String title = "Titanic";
+        movieSpy.setTitle(title);
 
-        Movie testMovie = new Movie();
+        when(movieRepository.findByTitle(anyString())).thenReturn(movieSpy);
 
-        testMovie.setTitle("Titanic");
-
-        Mockito.when(movieRepository.findByTitle("Titanic")).thenReturn(testMovie);
-
-        assertEquals("Titanic", movieService.findByTitle("Titanic").getTitle());
-        Mockito.verify(movieRepository, Mockito.atLeastOnce()).findByTitle("Titanic");
-
+        assertEquals(title, movieService.findByTitle(anyString()).getTitle());
+        verify(movieRepository, atLeastOnce()).findByTitle(anyString());
     }
 
     @Test
-    public void findByTitle_NotInDatabase(){
-        Mockito.when(movieRepository.findByTitle("Titanic")).thenReturn(null);
+    public void findByTitle_NotInDatabase() {
+        when(movieRepository.findByTitle(anyString())).thenReturn(null);
 
-        assertNull(movieService.findByTitle("Titanic"));
+        assertNull(movieService.findByTitle(anyString()));
+        verify(movieRepository, atMostOnce()).findByTitle(anyString());
     }
 
     @Test
-    public void findByImdbId_InDatabase(){
-        Movie testMovie = new Movie();
+    public void findByImdbId_InDatabase() {
+        String title = "Shrek";
+        movieSpy.setTitle(title);
 
-        testMovie.setTitle("Shrek");
+        when(movieRepository.findByImdbId(anyString())).thenReturn(movieSpy);
 
-        Mockito.when(movieRepository.findByImdbId("tt0126029")).thenReturn(testMovie);
-
-        assertEquals("Shrek", movieService.findByImdbId("tt0126029").getTitle());
-
+        assertEquals(title, movieService.findByImdbId(anyString()).getTitle());
     }
 
     @Test
-    public void findByImdbId_NotInDatabase(){
-        Mockito.when(movieRepository.findByImdbId("tt0126029")).thenReturn(null);
+    public void findByImdbId_NotInDatabase() {
+        when(movieRepository.findByImdbId(anyString())).thenReturn(null);
 
-        assertNull(movieService.findByImdbId("tt0126029"));
+        assertNull(movieService.findByImdbId(anyString()));
     }
 
     @Test
-    public void search_TitleInDatabase(){
-        Movie testMovie = new Movie();
-        testMovie.setTitle("Hot Rod");
+    public void search_TitleInDatabase() {
+        String title = "Hot Rod";
+        String searchType = "title";
+        movieSpy.setTitle(title);
 
-        Mockito.when(movieRepository.findByTitle("Hot Rod")).thenReturn(testMovie);
+        when(movieRepository.findByTitle(anyString())).thenReturn(movieSpy);
 
-        assertEquals("Hot Rod", movieService.search("Hot Rod", "title").getTitle());
+        assertEquals(title, movieService.search(anyString(), searchType).getTitle());
     }
 
     @Test
-    public void search_TitleNotInDatabase_AndNotFound(){
+    public void search_TitleNotInDatabase_AndNotFound() {
+        String searchType = "title";
+        ReflectionTestUtils.setField(movieService, "url", "http://www.omdbapi.com");
 
-        //Todo fix this search_TitleNotInDatabase_AndNotFound
+        when(movieRepository.findByTitle(anyString())).thenReturn(null);
+        when(restTemplate.getForEntity(anyString(), eq(Movie.class))).thenReturn(new ResponseEntity<>(new Movie(), HttpStatus.OK));
 
-        Mockito.when(movieRepository.findByTitle("Hot Rod")).thenReturn(null);
+        assertNull(movieService.search(anyString(), searchType));
+    }
+
+
+    @Test
+    public void search_ImdbIdInDatabase() {
+        String title = "Hot Rod";
+        String searchType = "ImdbId";
+        movieSpy.setTitle(title);
+
+        when(movieRepository.findByImdbId(anyString())).thenReturn(movieSpy);
+
+        assertEquals(title, movieService.search(anyString(), searchType).getTitle());
+    }
+
+
+    @Test
+    public void searchNewImdbId_MovieFound() {
+        String title = "Hot Rod";
+        movieSpy.setTitle(title);
+        movieSpy.setPoster("poster");
 
         ReflectionTestUtils.setField(movieService, "url", "http://www.omdbapi.com");
 
-        Mockito.when(restTemplate.getForEntity(anyString(), Mockito.eq(Movie.class))).thenReturn(new ResponseEntity<>(new Movie(), HttpStatus.OK));
-
-        assertNull(movieService.search("Hot Rod", "title"));
+        when(restTemplate.getForEntity(anyString(), eq(Movie.class))).thenReturn(new ResponseEntity<>(movieSpy, HttpStatus.OK));
+        assertEquals(title, movieService.searchNewImdbId(title).getTitle());
     }
 
-
-
     @Test
-    public void search_ImdbIdInDatabase(){
-        Movie testMovie = new Movie();
-        testMovie.setTitle("Hot Rod");
-
-        Mockito.when(movieRepository.findByImdbId("tt0787475")).thenReturn(testMovie);
-
-        assertEquals("Hot Rod", movieService.search("tt0787475", "ImdbId").getTitle());
-
-    }
-
-
-    @Test
-    public void searchNewImdbId_MovieFound(){
-        Movie testMovie = new Movie();
-        testMovie.setTitle("Hot Rod");
-        testMovie.setPoster("poster");
-
+    public void searchNewImdbId_MovieFound_NoPosterPresent() {
+        String title = "Hot Rod";
+        movieSpy.setTitle(title);
+        movieSpy.setPoster("N/A");
 
         ReflectionTestUtils.setField(movieService, "url", "http://www.omdbapi.com");
 
+        when(restTemplate.getForEntity(anyString(), eq(Movie.class))).thenReturn(new ResponseEntity<>(movieSpy, HttpStatus.OK));
+        assertNull(movieService.searchNewImdbId(title));
+    }
 
-        Mockito.when(restTemplate.getForEntity(anyString(), Mockito.eq(Movie.class))).thenReturn(new ResponseEntity<>(testMovie, HttpStatus.OK));
+    @Test
+    public void searchNewImdbId_MovieNotFound() {
+        ReflectionTestUtils.setField(movieService, "url", "http://www.omdbapi.com");
 
-        assertEquals("Hot Rod", movieService.searchNewImdbId("tt0787475").getTitle());
+        when(restTemplate.getForEntity(anyString(), eq(Movie.class))).thenReturn(new ResponseEntity<>(movieSpy, HttpStatus.OK));
+        assertNull(movieService.searchNewImdbId("title"));
     }
 
 
     @Test
-    public void searchNewMovieTitle_MovieFound(){
-        Movie testMovie = new Movie();
-        testMovie.setTitle("Hot Rod");
-        testMovie.setPoster("poster");
-
+    public void searchNewMovieTitle_MovieFound() {
+        String title = "Hot Rod";
+        movieSpy.setTitle(title);
+        movieSpy.setPoster("poster");
         ReflectionTestUtils.setField(movieService, "url", "http://www.omdbapi.com");
 
 
-        Mockito.when(restTemplate.getForEntity(anyString(), Mockito.eq(Movie.class))).thenReturn(new ResponseEntity<>(testMovie, HttpStatus.OK));
+        when(restTemplate.getForEntity(anyString(), eq(Movie.class))).thenReturn(new ResponseEntity<>(movieSpy, HttpStatus.OK));
 
-        assertEquals("Hot Rod", movieService.searchNewMovieTitle("Hot Rod").getTitle());
+        assertEquals(title, movieService.searchNewMovieTitle(title).getTitle());
+    }
 
+    @Test
+    public void searchNewMovieTitle_MovieFound_NoPosterPresent() {
+        String title = "Hot Rod";
+        movieSpy.setTitle(title);
+        movieSpy.setPoster("N/A");
+        ReflectionTestUtils.setField(movieService, "url", "http://www.omdbapi.com");
+
+        when(restTemplate.getForEntity(anyString(), eq(Movie.class))).thenReturn(new ResponseEntity<>(movieSpy, HttpStatus.OK));
+        assertNull(movieService.searchNewMovieTitle(title));
     }
 
 
     @Test
-    public void save_toFavorites_success(){
-        Movie testMovie = Mockito.mock(Movie.class);
-
-        assertTrue(movieService.save(testMovie, "favorites"));
-        Mockito.verify(testMovie, Mockito.atLeastOnce()).setFavorite(true);
+    public void save_ToFavorites_Success() {
+        assertTrue(movieService.save(movieSpy, "favorites"));
+        verify(movieSpy, atLeastOnce()).setFavorite(true);
     }
 
     @Test
-    public void save_toFavorites_fail(){
-        Movie testMovie = new Movie();
-        testMovie.setTitle("test");
-        testMovie.setFavorite(true);
+    public void save_ToFavorites_Fail() {
+        movieSpy.setTitle("test");
+        movieSpy.setFavorite(true);
 
-        Mockito.when(movieRepository.findByTitle(testMovie.getTitle())).thenReturn(testMovie);
+        when(movieRepository.findByTitle(movieSpy.getTitle())).thenReturn(movieSpy);
 
-        assertFalse(movieService.save(testMovie, "favorites"));
-        Mockito.verify(movieRepository, Mockito.never()).save(testMovie);
+        assertFalse(movieService.save(movieSpy, "favorites"));
+        verify(movieRepository, never()).save(movieSpy);
     }
 
     @Test
-    public void save_toWatchList_success(){
-        Movie testMovie = Mockito.mock(Movie.class);
-
-        assertTrue(movieService.save(testMovie, "watch-list"));
-
-        Mockito.verify(testMovie, Mockito.atLeastOnce()).setWatchList(true);
-        Mockito.verify(movieRepository, Mockito.atLeastOnce()).save(testMovie);
+    public void save_ToWatchList_Success() {
+        assertTrue(movieService.save(movieSpy, "watch-list"));
+        verify(movieSpy, atLeastOnce()).setWatchList(true);
+        verify(movieRepository, atLeastOnce()).save(movieSpy);
     }
 
     @Test
-    public void save_toWatchList_fail(){
-        Movie testMovie = new Movie();
-        testMovie.setTitle("test");
-        testMovie.setWatchList(true);
+    public void save_ToWatchList_Fail() {
+        movieSpy.setTitle("test");
+        movieSpy.setWatchList(true);
 
-        Mockito.when(movieRepository.findByTitle(testMovie.getTitle())).thenReturn(testMovie);
+        when(movieRepository.findByTitle(movieSpy.getTitle())).thenReturn(movieSpy);
 
-        assertFalse(movieService.save(testMovie, "watch-list"));
-        Mockito.verify(movieRepository, Mockito.never()).save(testMovie);
+        assertFalse(movieService.save(movieSpy, "watch-list"));
+        verify(movieRepository, never()).save(movieSpy);
     }
 
     @Test
-    public void save_toCollection_success(){
-        Movie testMovie = Mockito.mock(Movie.class);
-
-
-        assertTrue(movieService.save(testMovie, "collection"));
-        Mockito.verify(movieRepository, Mockito.atLeastOnce()).save(testMovie);
+    public void save_ToCollection_Success() {
+        assertTrue(movieService.save(movieSpy, "collection"));
+        verify(movieRepository, atLeastOnce()).save(movieSpy);
     }
 
     @Test
-    public void save_toCollection_fail(){
-        Movie testMovie = Mockito.mock(Movie.class);
-        testMovie.setTitle("test");
+    public void save_ToCollection_Fail() {
+        movieSpy.setTitle("test");
 
-        Mockito.when(movieRepository.findByTitle(testMovie.getTitle())).thenReturn(testMovie);
+        when(movieRepository.findByTitle(movieSpy.getTitle())).thenReturn(movieSpy);
 
-        Mockito.verify(movieRepository, Mockito.never()).save(testMovie);
-        assertFalse(movieService.save(testMovie, "collection"));
+        verify(movieRepository, never()).save(movieSpy);
+        assertFalse(movieService.save(movieSpy, "collection"));
     }
 
     @Test
-    public void remove_fromFavorites(){
-        Movie testMovie = Mockito.mock(Movie.class);
-        testMovie.setFavorite(true);
+    public void remove_FromFavorites() {
+        movieSpy.setFavorite(true);
 
-        Mockito.when(movieRepository.findById(anyString())).thenReturn(Optional.of(testMovie));
+        when(movieRepository.findById(anyString())).thenReturn(Optional.of(movieSpy));
 
         movieService.remove(anyString(), "favorites");
 
-        Mockito.verify(movieRepository, Mockito.atLeastOnce()).save(testMovie);
-        Mockito.verify(testMovie, Mockito.atLeastOnce()).setFavorite(false);
-        assertFalse(testMovie.isFavorite());
-
+        verify(movieRepository, atLeastOnce()).save(movieSpy);
+        verify(movieSpy, atLeastOnce()).setFavorite(false);
+        assertFalse(movieSpy.isFavorite());
 
 
     }
 
 
     @Test
-    public void remove_fromWatchList(){
-        Movie testMovie = Mockito.mock(Movie.class);
-        testMovie.setWatchList(true);
+    public void remove_fromWatchList() {
+        movieSpy.setWatchList(true);
 
-        Mockito.when(movieRepository.findById(anyString())).thenReturn(Optional.of(testMovie));
+        when(movieRepository.findById(anyString())).thenReturn(Optional.of(movieSpy));
 
         movieService.remove(anyString(), "watch-list");
 
-        Mockito.verify(movieRepository, Mockito.atLeastOnce()).save(testMovie);
-        Mockito.verify(testMovie, Mockito.atLeastOnce()).setWatchList(false);
-        assertFalse(testMovie.isWatchList());
+        verify(movieRepository, atLeastOnce()).save(movieSpy);
+        verify(movieSpy, atLeastOnce()).setWatchList(false);
+        assertFalse(movieSpy.isWatchList());
     }
 
     @Test
-    public void remove_fromCollection(){
-        Movie testMovie = Mockito.mock(Movie.class);
-
-        Mockito.when(movieRepository.findById(anyString())).thenReturn(Optional.of(testMovie));
+    public void remove_fromCollection() {
+        when(movieRepository.findById(anyString())).thenReturn(Optional.of(movieSpy));
 
         movieService.remove(anyString(), "collection");
 
-        Mockito.verify(movieRepository, Mockito.atLeastOnce()).delete(testMovie);
+        verify(movieRepository, atLeastOnce()).delete(movieSpy);
     }
-
-
 
 
 }
