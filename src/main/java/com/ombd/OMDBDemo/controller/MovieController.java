@@ -38,7 +38,7 @@ public class MovieController {
 
         Movie theMovie;
         if ((theMovie = movieService.search(searchString, searchType)) == null) {
-            redirectAttr.addFlashAttribute("notFound", new StringBuilder(searchType).append(": ").append(searchString).append(" not found"));
+            redirectAttr.addFlashAttribute("notFound", new StringBuilder(searchType).append(": ").append(searchString).append(" not found").toString());
             return "redirect:/movies";
         }
         theModel.addAttribute("movie", theMovie);
@@ -49,7 +49,7 @@ public class MovieController {
     public String displayMoviesPage(@RequestParam(value = "listView", defaultValue = "all") String listView,
                                     Model theModel) {
         if(listView.equals("collection") || listView.equals("all")) {
-            theModel.addAttribute("movies", movieService.findAll());
+            theModel.addAttribute("collection", movieService.findAll());
         }
         if(listView.equals("favorites") || listView.equals("all")) {
             theModel.addAttribute("favorites", movieService.findFavorites());

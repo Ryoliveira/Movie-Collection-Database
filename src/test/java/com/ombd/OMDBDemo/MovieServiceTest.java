@@ -39,6 +39,7 @@ public class MovieServiceTest {
     @Spy
     Movie movieSpy;
 
+
     @Test
     public void findAll() {
         List<Movie> collection = Arrays.asList(new Movie(), new Movie(), new Movie());
@@ -104,6 +105,7 @@ public class MovieServiceTest {
         when(movieRepository.findByImdbId(anyString())).thenReturn(null);
 
         assertNull(movieService.findByImdbId(anyString()));
+        verify(movieRepository, atLeastOnce()).findByImdbId(anyString());
     }
 
     @Test
@@ -126,6 +128,22 @@ public class MovieServiceTest {
         when(restTemplate.getForEntity(anyString(), eq(Movie.class))).thenReturn(new ResponseEntity<>(new Movie(), HttpStatus.OK));
 
         assertNull(movieService.search(anyString(), searchType));
+        verify(movieRepository, atLeastOnce()).findByTitle(anyString());
+    }
+
+    @Test
+    public void search_TitleNotInDatabase_NewTitleFound() {
+        String searchType = "title";
+        String title = "Lord of the Rings";
+        movieSpy.setTitle(title);
+        movieSpy.setPoster("Poster");
+        ReflectionTestUtils.setField(movieService, "url", "http://www.omdbapi.com");
+
+        when(movieRepository.findByTitle(anyString())).thenReturn(null);
+        when(restTemplate.getForEntity(anyString(), eq(Movie.class))).thenReturn(new ResponseEntity<>(movieSpy, HttpStatus.OK));
+
+        assertEquals(title, movieService.search(anyString(), searchType).getTitle());
+        verify(restTemplate, atLeastOnce()).getForEntity(anyString(), eq(Movie.class));
     }
 
 
@@ -138,6 +156,34 @@ public class MovieServiceTest {
         when(movieRepository.findByImdbId(anyString())).thenReturn(movieSpy);
 
         assertEquals(title, movieService.search(anyString(), searchType).getTitle());
+    }
+
+    @Test
+    public void search_ImdbIdNotInDatabase_AndNotFound() {
+        String searchType = "ImdbId";
+        ReflectionTestUtils.setField(movieService, "url", "http://www.omdbapi.com");
+
+        when(movieService.findByImdbId(anyString())).thenReturn(null);
+        when(restTemplate.getForEntity(anyString(), eq(Movie.class))).thenReturn(new ResponseEntity<>(new Movie(), HttpStatus.OK));
+
+        assertNull(movieService.search(anyString(), searchType));
+        verify(movieRepository, atLeastOnce()).findByImdbId(anyString());
+
+    }
+
+    @Test
+    public void search_ImdbIdNotInDatabase_NewImdbIdFound() {
+        String searchType = "ImdbId";
+        String title = "The Hobit";
+        movieSpy.setTitle(title);
+        movieSpy.setPoster("Poster");
+        ReflectionTestUtils.setField(movieService, "url", "http://www.omdbapi.com");
+
+        when(movieService.findByImdbId(anyString())).thenReturn(null);
+        when(restTemplate.getForEntity(anyString(), eq(Movie.class))).thenReturn(new ResponseEntity<>(movieSpy, HttpStatus.OK));
+
+        assertEquals(title, movieService.search(anyString(), searchType).getTitle());
+
     }
 
 

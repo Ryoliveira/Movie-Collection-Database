@@ -35,7 +35,7 @@
         </select>
         <button type="submit" class="btn btn-primary">View</button>
     </form>
-    <div th:if="${listView == 'collection' || (listView == 'all' && !movies.isEmpty())}">
+    <div th:if="${listView == 'collection' || (listView == 'all' && !collection.isEmpty())}">
         <hr>
         <h3 class="text-center"><b><u>Movie Collection</u></b></h3>
         <hr>
@@ -47,7 +47,7 @@
             <th>Favorite</th>
             <th>Watch List</th>
             </thead>
-            <tr th:each="movie : ${movies}" class="text-center">
+            <tr th:each="movie : ${collection}" class="text-center">
                 <td th:text="${movie.title}"></td>
                 <td th:text="${movie.rated}"></td>
                 <td th:text="${movie.year}"></td>
