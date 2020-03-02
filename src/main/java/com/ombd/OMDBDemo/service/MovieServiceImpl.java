@@ -35,7 +35,7 @@ public class MovieServiceImpl implements MovieService {
 
 
     @Autowired
-    public MovieServiceImpl(MovieRepository movieRepository, RestTemplate restTemplate){
+    public MovieServiceImpl(MovieRepository movieRepository, RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
         this.movieRepository = movieRepository;
     }
@@ -70,14 +70,13 @@ public class MovieServiceImpl implements MovieService {
     public Movie search(String searchString, String searchType) {
         Movie theMovie;
 
-        if(searchType.equals("title")) {
-            if ((theMovie = findByTitle(searchString)) == null) { // Use movie object in database if present
-                theMovie = searchNewMovieTitle(searchString);     // Get Movie from OMDB api otherwise
+        if (searchType.equals("title")) {
+            if ((theMovie = findByTitle(searchString)) == null) {
+                theMovie = searchNewMovieTitle(searchString);
             }
-        }
-        else{
-            if((theMovie =  findByImdbId(searchString)) == null) { // Use movie object in database if present
-                theMovie = searchNewImdbId(searchString);        // Get Movie from OMDB api otherwise
+        } else {
+            if ((theMovie = findByImdbId(searchString)) == null) {
+                theMovie = searchNewImdbId(searchString);
             }
         }
         return theMovie;
@@ -86,17 +85,14 @@ public class MovieServiceImpl implements MovieService {
     @Override
     public Movie searchNewImdbId(String imdbId) {
         String searchUrl = UriComponentsBuilder.fromHttpUrl(url)
-                                               .queryParam("i", imdbId)
-                                               .queryParam("apikey", key)
-                                               .toUriString();
-
+                .queryParam("i", imdbId)
+                .queryParam("apikey", key)
+                .toUriString();
 
         ResponseEntity<Movie> response = restTemplate.getForEntity(searchUrl, Movie.class);
 
-
         Movie theMovie = response.getBody();
-
-        if(theMovie.getTitle() == null || theMovie.getPoster().equals("N/A")){
+        if (theMovie.getTitle() == null || theMovie.getPoster().equals("N/A")) {
             return null;
         }
         return theMovie;
@@ -106,7 +102,7 @@ public class MovieServiceImpl implements MovieService {
     public Movie searchNewMovieTitle(String movieTitle) {
         try {
             movieTitle = URLEncoder
-                    .encode(movieTitle, StandardCharsets.UTF_8.toString()) // Encode to support spaces in title
+                    .encode(movieTitle, StandardCharsets.UTF_8.toString())
                     .replace("%3A", ":")
                     .replace("%27", "'");
             LOGGER.info(movieTitle);
@@ -114,16 +110,15 @@ public class MovieServiceImpl implements MovieService {
             e.printStackTrace();
         }
         String searchUrl = UriComponentsBuilder.fromHttpUrl(url)
-                                        .queryParam("t", movieTitle)
-                                        .queryParam("apikey", key)
-                                        .toUriString();
-
+                .queryParam("t", movieTitle)
+                .queryParam("apikey", key)
+                .toUriString();
 
         ResponseEntity<Movie> response = restTemplate.getForEntity(searchUrl, Movie.class);
 
         Movie theMovie = response.getBody();
 
-        if(theMovie.getTitle() == null || theMovie.getPoster().equals("N/A")){
+        if (theMovie.getTitle() == null || theMovie.getPoster().equals("N/A")) {
             return null;
         }
         return theMovie;
@@ -131,16 +126,14 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public boolean save(Movie theMovie, String flag) {
-        Movie tempMovie = findByTitle(theMovie.getTitle()); // Check if movie object is in database
-        theMovie = tempMovie != null ? tempMovie : theMovie; // if movie in database, use db object. Use given movie object otherwise
-        if(flag.equals("favorites") && !theMovie.isFavorite()){
+    public boolean save(Movie theMovie, String listName) {
+        Movie tempMovie = findByTitle(theMovie.getTitle());
+        theMovie = tempMovie != null ? tempMovie : theMovie;
+        if (listName.equals("favorites") && !theMovie.isFavorite()) {
             theMovie.setFavorite(true);
-        }
-        else if(flag.equals("watch-list") && !theMovie.isWatchList()){
+        } else if (listName.equals("watchList") && !theMovie.isWatchList()) {
             theMovie.setWatchList(true);
-        }
-        else if(findByTitle(theMovie.getTitle()) != null){
+        } else if (findByTitle(theMovie.getTitle()) != null) {
             return false;
         }
         movieRepository.save(theMovie);
@@ -148,16 +141,15 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public void remove(String id, String flag) {
+    public void remove(String id, String listName) {
         Optional<Movie> result = movieRepository.findById(id);
         Movie tempMovie = result.get();
-        if(flag.equals("collection")){
+        if (listName.equals("collection")) {
             movieRepository.delete(tempMovie);
-        }else{
-            if(flag.equals("favorites")){
+        } else {
+            if (listName.equals("favorites")) {
                 tempMovie.setFavorite(false);
-            }
-            else if(flag.equals("watch-list")) {
+            } else if (listName.equals("watchList")) {
                 tempMovie.setWatchList(false);
             }
             movieRepository.save(tempMovie);

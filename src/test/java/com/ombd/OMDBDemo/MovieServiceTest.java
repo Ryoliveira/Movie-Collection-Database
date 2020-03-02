@@ -264,7 +264,7 @@ public class MovieServiceTest {
 
     @Test
     public void save_ToWatchList_Success() {
-        assertTrue(movieService.save(movieSpy, "watch-list"));
+        assertTrue(movieService.save(movieSpy, "watchList"));
         verify(movieSpy, atLeastOnce()).setWatchList(true);
         verify(movieRepository, atLeastOnce()).save(movieSpy);
     }
@@ -318,7 +318,7 @@ public class MovieServiceTest {
 
         when(movieRepository.findById(anyString())).thenReturn(Optional.of(movieSpy));
 
-        movieService.remove(anyString(), "watch-list");
+        movieService.remove(anyString(), "watchList");
 
         verify(movieRepository, atLeastOnce()).save(movieSpy);
         verify(movieSpy, atLeastOnce()).setWatchList(false);

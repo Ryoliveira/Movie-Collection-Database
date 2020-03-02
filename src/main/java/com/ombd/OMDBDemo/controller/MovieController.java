@@ -38,7 +38,8 @@ public class MovieController {
 
         Movie theMovie;
         if ((theMovie = movieService.search(searchString, searchType)) == null) {
-            redirectAttr.addFlashAttribute("notFound", new StringBuilder(searchType).append(": ").append(searchString).append(" not found").toString());
+            String msg = new StringBuilder(searchType).append(": ").append(searchString).append(" not found").toString();
+            redirectAttr.addFlashAttribute("notFound", msg);
             return "redirect:/movies";
         }
         theModel.addAttribute("movie", theMovie);
@@ -48,13 +49,13 @@ public class MovieController {
     @GetMapping("/movies")
     public String displayMoviesPage(@RequestParam(value = "listView", defaultValue = "all") String listView,
                                     Model theModel) {
-        if(listView.equals("collection") || listView.equals("all")) {
+        if (listView.equals("collection") || listView.equals("all")) {
             theModel.addAttribute("collection", movieService.findAll());
         }
-        if(listView.equals("favorites") || listView.equals("all")) {
+        if (listView.equals("favorites") || listView.equals("all")) {
             theModel.addAttribute("favorites", movieService.findFavorites());
         }
-        if(listView.equals("watchList") || listView.equals("all")) {
+        if (listView.equals("watchList") || listView.equals("all")) {
             theModel.addAttribute("watchList", movieService.findWatchList());
         }
         theModel.addAttribute("listView", listView);
@@ -63,11 +64,12 @@ public class MovieController {
 
     @PostMapping("/movies")
     public String addMovie(@ModelAttribute("movie") Movie theMovie,
-                           @RequestParam("flag") String flag,
+                           @RequestParam("listName") String listName,
                            Model theModel) {
-        LOGGER.info(flag);
-        if (!movieService.save(theMovie, flag)) {
-            theModel.addAttribute("failure", new StringBuilder(theMovie.getTitle()).append(" already in ").append(flag).toString());
+        LOGGER.info(listName);
+        if (!movieService.save(theMovie, listName)) {
+            String msg = new StringBuilder(theMovie.getTitle()).append(" already in ").append(listName).toString();
+            theModel.addAttribute("failure", msg);
             theModel.addAttribute("movie", theMovie);
             return "display/display-movie";
         }
@@ -76,10 +78,10 @@ public class MovieController {
 
 
     @GetMapping("/delete")
-    public String removeMovie(@RequestParam("id") String id, String flag,
+    public String removeMovie(@RequestParam("id") String id, String listName,
                               @RequestParam("listView") String listView,
                               RedirectAttributes redirectAttr) {
-        movieService.remove(id, flag);
+        movieService.remove(id, listName);
         redirectAttr.addAttribute("listView", listView);
         return "redirect:/movies";
     }

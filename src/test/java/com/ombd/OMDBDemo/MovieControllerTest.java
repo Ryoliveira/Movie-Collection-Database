@@ -11,7 +11,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -19,6 +18,8 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
@@ -52,7 +53,7 @@ public class MovieControllerTest {
 
     @Test
     public void homePageRedirect() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/"))
+        mockMvc.perform(get("/"))
                 .andExpect(status().isFound())
                 .andExpect(view().name("redirect:/movies"))
                 .andDo(MockMvcResultHandlers.print())
@@ -63,7 +64,7 @@ public class MovieControllerTest {
     public void searchMovie_Found() throws Exception {
         Mockito.when(movieService.search(anyString(), anyString())).thenReturn(mockMovie);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/movies/search")
+        mockMvc.perform(get("/movies/search")
                 .param("searchString", anyString())
                 .param("searchType", anyString()))
                 .andExpect(status().isOk())
@@ -78,7 +79,7 @@ public class MovieControllerTest {
     public void searchMovie_NotFound() throws Exception {
         Mockito.when(movieService.search(anyString(), anyString())).thenReturn(null);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/movies/search")
+        mockMvc.perform(get("/movies/search")
                 .param("searchString", anyString())
                 .param("searchType", anyString()))
                 .andExpect(status().isFound())
@@ -91,7 +92,7 @@ public class MovieControllerTest {
     @Test
     public void displayMoviesPage_All() throws Exception {
         String listView = "all";
-        mockMvc.perform(MockMvcRequestBuilders.get("/movies")
+        mockMvc.perform(get("/movies")
                 .param("listView", listView))
                 .andExpect(status().isOk())
                 .andExpect(view().name("display/collection-list"))
@@ -110,7 +111,7 @@ public class MovieControllerTest {
     @Test
     public void displayMoviesPage_Collection() throws Exception {
         String listView = "collection";
-        mockMvc.perform(MockMvcRequestBuilders.get("/movies")
+        mockMvc.perform(get("/movies")
                 .param("listView", listView))
                 .andExpect(status().isOk())
                 .andExpect(view().name("display/collection-list"))
@@ -127,7 +128,7 @@ public class MovieControllerTest {
     @Test
     public void displayMoviesPage_Favorties() throws Exception {
         String listView = "favorites";
-        mockMvc.perform(MockMvcRequestBuilders.get("/movies")
+        mockMvc.perform(get("/movies")
                 .param("listView", listView))
                 .andExpect(status().isOk())
                 .andExpect(view().name("display/collection-list"))
@@ -143,7 +144,7 @@ public class MovieControllerTest {
     @Test
     public void displayMoviesPage_WatchList() throws Exception {
         String listView = "watchList";
-        mockMvc.perform(MockMvcRequestBuilders.get("/movies")
+        mockMvc.perform(get("/movies")
                 .param("listView", listView))
                 .andExpect(status().isOk())
                 .andExpect(view().name("display/collection-list"))
@@ -158,45 +159,45 @@ public class MovieControllerTest {
 
     @Test
     public void addMovie_Success() throws Exception {
-        String flag = "collection";
+        String listName = "collection";
         when(movieService.save(eq(mockMovie), anyString())).thenReturn(true);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/movies")
+        mockMvc.perform(post("/movies")
                 .flashAttr("movie", mockMovie)
-                .param("flag", flag))
+                .param("listName", listName))
                 .andExpect(view().name("redirect:/movies"))
                 .andDo(MockMvcResultHandlers.print())
                 .andReturn();
 
-        verify(movieService, atLeastOnce()).save(mockMovie, flag);
+        verify(movieService, atLeastOnce()).save(mockMovie, listName);
     }
 
     @Test
     public void addMovie_Fail() throws Exception {
         Movie movieSpy = spy(Movie.class);
-        String flag = "collection";
+        String listName = "collection";
         String title = "Lord of the Rings";
         movieSpy.setTitle(title);
         when(movieService.save(eq(movieSpy), anyString())).thenReturn(false);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/movies")
+        mockMvc.perform(post("/movies")
                 .flashAttr("movie", movieSpy)
-                .param("flag", flag))
+                .param("listName", listName))
                 .andExpect(view().name("display/display-movie"))
-                .andExpect(model().attribute("failure", title + " already in " + flag))
+                .andExpect(model().attribute("failure", title + " already in " + listName))
                 .andExpect(model().attribute("movie", movieSpy))
                 .andDo(MockMvcResultHandlers.print())
                 .andReturn();
 
-        verify(movieService, atLeastOnce()).save(movieSpy, flag);
+        verify(movieService, atLeastOnce()).save(movieSpy, listName);
     }
 
     @Test
     public void removeMovie() throws Exception {
         String listView = "collection";
-        mockMvc.perform(MockMvcRequestBuilders.get("/delete")
+        mockMvc.perform(get("/delete")
                 .param("id", anyString())
-                .param("flag", anyString())
+                .param("listName", anyString())
                 .param("listView", listView))
                 .andExpect(view().name("redirect:/movies"))
                 .andExpect(model().attribute("listView", listView))

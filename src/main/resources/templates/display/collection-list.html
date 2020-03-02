@@ -31,7 +31,7 @@
             <option value="all" th:selected="${listView == 'all'}">All</option>
             <option value="collection" th:selected="${listView == 'collection'}">Collection</option>
             <option value="favorites" th:selected="${listView == 'favorites'}">Favorites</option>
-            <option value="watchList"th:selected="${listView == 'watchList'}">Watch List</option>
+            <option value="watchList" th:selected="${listView == 'watchList'}">Watch List</option>
         </select>
         <button type="submit" class="btn btn-primary">View</button>
     </form>
@@ -61,7 +61,8 @@
                        class="btn btn-primary">View Movie</a>
                 </td>
                 <td>
-                    <a th:href="@{/delete(id=${movie.id}, flag=collection, listView=${listView})}" class="btn btn-danger"
+                    <a th:href="@{/delete(id=${movie.id}, listName=collection, listView=${listView})}"
+                       class="btn btn-danger"
                        onclick="if(!(confirm('Are you sure you want to remove movie from collection?'))) return false;">Remove
                         Movie</a>
                 </td>
@@ -90,7 +91,8 @@
                        class="btn btn-primary">View Movie</a>
                 </td>
                 <td>
-                    <a th:href="@{/delete(id=${movie.id}, flag=favorites, listView=${listView})}" class="btn btn-danger"
+                    <a th:href="@{/delete(id=${movie.id}, listName=favorites, listView=${listView})}"
+                       class="btn btn-danger"
                        onclick="if(!(confirm('Are you sure you want to remove movie from favorites?'))) return false;">Remove
                         Favorite</a>
                 </td>
@@ -119,7 +121,8 @@
                        class="btn btn-primary">View Movie</a>
                 </td>
                 <td>
-                    <a th:href="@{/delete(id=${movie.id}, flag=watch-list, listView=${listView})}" class="btn btn-danger"
+                    <a th:href="@{/delete(id=${movie.id}, listName=watchList, listView=${listView})}"
+                       class="btn btn-danger"
                        onclick="if(!(confirm('Are you sure you want to remove movie from watch list?'))) return false;">Remove
                         Movie</a>
                 </td>

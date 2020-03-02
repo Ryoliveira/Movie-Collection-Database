@@ -11,7 +11,7 @@
 
     <title>Movie Display</title>
 </head>
-<body style="background-color: #4682B4;" >
+<body style="background-color: #4682B4;">
 
 <div class="container bg-secondary mt-3">
     <hr>
@@ -22,69 +22,69 @@
             <img class="border border-dark" th:src="@{${movie.poster}}">
         </div>
         <div class="col align-self-center mr-3">
-        <div class="border border-dark">
-            <b><u>Title</u>:</b> <span th:text="${movie.title}"></span> <br>
-            <b><u>Released</u>:</b> <span th:text="${movie.released}"></span> <br>
-            <b><u>Rating</u>:</b> <span th:text="${movie.rated}"></span> <br>
-            <b><u>Runtime</u>:</b> <span th:text="${movie.runtime}"></span> <br>
-            <b><u>Plot summary</u>:</b> <span th:text="${movie.plot}"></span> <br>
+            <div class="border border-dark">
+                <b><u>Title</u>:</b> <span th:text="${movie.title}"></span> <br>
+                <b><u>Released</u>:</b> <span th:text="${movie.released}"></span> <br>
+                <b><u>Rating</u>:</b> <span th:text="${movie.rated}"></span> <br>
+                <b><u>Runtime</u>:</b> <span th:text="${movie.runtime}"></span> <br>
+                <b><u>Plot summary</u>:</b> <span th:text="${movie.plot}"></span> <br>
+            </div>
+            <div class="row mt-2 mb-2">
+                <div class="col-3">
+                    <form action="#" th:action="@{/movies}" method="post" th:object="${movie}">
+                        <input type="hidden" th:name="listName" th:value="collection">
+                        <input type="hidden" th:field="*{title}">
+                        <input type="hidden" th:field="*{rated}">
+                        <input type="hidden" th:field="*{year}">
+                        <input type="hidden" th:field="*{released}">
+                        <input type="hidden" th:field="*{runtime}">
+                        <input type="hidden" th:field="*{genre}">
+                        <input type="hidden" th:field="*{plot}">
+                        <input type="hidden" th:field="*{poster}">
+                        <input type="hidden" th:field="*{imdbId}">
+                        <button class="btn btn-primary" type="submit">Add to collection</button>
+                    </form>
+                </div>
+                <div class="col-3">
+                    <form action="#" th:action="@{/movies}" method="post" th:object="${movie}">
+                        <input type="hidden" th:name="listName" th:value="favorites">
+                        <input type="hidden" th:field="*{title}">
+                        <input type="hidden" th:field="*{rated}">
+                        <input type="hidden" th:field="*{year}">
+                        <input type="hidden" th:field="*{released}">
+                        <input type="hidden" th:field="*{runtime}">
+                        <input type="hidden" th:field="*{genre}">
+                        <input type="hidden" th:field="*{plot}">
+                        <input type="hidden" th:field="*{poster}">
+                        <input type="hidden" th:field="*{imdbId}">
+                        <button class="btn btn-success" type="submit">Add to favorites</button>
+                    </form>
+                </div>
+                <div class="col-3">
+                    <form action="#" th:action="@{/movies}" method="post" th:object="${movie}">
+                        <input type="hidden" th:name="listName" th:value="watchList">
+                        <input type="hidden" th:field="*{title}">
+                        <input type="hidden" th:field="*{rated}">
+                        <input type="hidden" th:field="*{year}">
+                        <input type="hidden" th:field="*{released}">
+                        <input type="hidden" th:field="*{runtime}">
+                        <input type="hidden" th:field="*{genre}">
+                        <input type="hidden" th:field="*{plot}">
+                        <input type="hidden" th:field="*{poster}">
+                        <input type="hidden" th:field="*{imdbId}">
+                        <button class="btn btn-warning" type="submit">Add to watch list</button>
+                    </form>
+                </div>
+                <div class="col-1">
+                    <a class="btn btn-info" target="_blank" th:href="@{${movie.getImdbLink()}}">Imdb</a><br>
+                </div>
+            </div>
+            <div class="row">
+                <div class="ml-3">
+                    <i class="text-danger" th:text="${failure}"></i>
+                </div>
+            </div>
         </div>
-        <div class="row mt-2 mb-2">
-            <div class="col-3">
-                <form action="#" th:action="@{/movies}" method="post" th:object="${movie}">
-                    <input type="hidden" th:name="flag" th:value="collection">
-                    <input type="hidden" th:field="*{title}">
-                    <input type="hidden" th:field="*{rated}">
-                    <input type="hidden" th:field="*{year}">
-                    <input type="hidden" th:field="*{released}">
-                    <input type="hidden" th:field="*{runtime}">
-                    <input type="hidden" th:field="*{genre}">
-                    <input type="hidden" th:field="*{plot}">
-                    <input type="hidden" th:field="*{poster}">
-                    <input type="hidden" th:field="*{imdbId}">
-                    <button class="btn btn-primary" type="submit">Add to collection</button>
-                </form>
-            </div>
-            <div class="col-3">
-                <form action="#" th:action="@{/movies}" method="post" th:object="${movie}">
-                    <input type="hidden" th:name="flag" th:value="favorites">
-                    <input type="hidden" th:field="*{title}">
-                    <input type="hidden" th:field="*{rated}">
-                    <input type="hidden" th:field="*{year}">
-                    <input type="hidden" th:field="*{released}">
-                    <input type="hidden" th:field="*{runtime}">
-                    <input type="hidden" th:field="*{genre}">
-                    <input type="hidden" th:field="*{plot}">
-                    <input type="hidden" th:field="*{poster}">
-                    <input type="hidden" th:field="*{imdbId}">
-                    <button class="btn btn-success" type="submit">Add to favorites</button>
-                </form>
-            </div>
-            <div class="col-3">
-                <form action="#" th:action="@{/movies}" method="post" th:object="${movie}">
-                    <input type="hidden" th:name="flag" th:value="watch-list">
-                    <input type="hidden" th:field="*{title}">
-                    <input type="hidden" th:field="*{rated}">
-                    <input type="hidden" th:field="*{year}">
-                    <input type="hidden" th:field="*{released}">
-                    <input type="hidden" th:field="*{runtime}">
-                    <input type="hidden" th:field="*{genre}">
-                    <input type="hidden" th:field="*{plot}">
-                    <input type="hidden" th:field="*{poster}">
-                    <input type="hidden" th:field="*{imdbId}">
-                    <button class="btn btn-warning" type="submit">Add to watch list</button>
-                </form>
-            </div>
-            <div class="col-1">
-                <a class="btn btn-info" target="_blank" th:href="@{${movie.getImdbLink()}}">Imdb</a><br>
-            </div>
-        </div>
-        <div class="row">
-            <div class="ml-3">
-                <i class="text-danger" th:text="${failure}"></i>
-            </div>
-        </div>
-    </div>
     </div>
 
     <hr>
@@ -93,6 +93,7 @@
     </div>
 </div>
 
-<footer class="fixed-bottom text-right">Powered by: <a target="_blank" th:href="@{http://www.omdbapi.com/}">OMDB</a></footer>
+<footer class="fixed-bottom text-right">Powered by: <a target="_blank" th:href="@{http://www.omdbapi.com/}">OMDB</a>
+</footer>
 </body>
 </html>

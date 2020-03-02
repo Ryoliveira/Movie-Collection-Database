@@ -10,15 +10,14 @@ import org.springframework.web.client.RestTemplate;
 @SpringBootApplication
 public class OmdbDemoApplication {
 
-	@Bean
-	public RestTemplate restTemplate(RestTemplateBuilder builder){
-		return builder.build();
-	}
+    @Bean
+    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+        return builder.build();
+    }
 
 
-
-	public static void main(String[] args) {
-		SpringApplication.run(OmdbDemoApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(OmdbDemoApplication.class, args);
+    }
 
 }
